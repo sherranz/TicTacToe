@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from init_utils import compute_loss, forward_propagation, backward_propagation
+from init_utils import compute_loss, forward_propagation, backward_propagation, sigmoid
 from init_utils import update_parameters, predict#, load_dataset
 
 
@@ -19,7 +19,7 @@ def xxx_inicio_prueba():
     test_Y = Y1
     return train_X, test_X, train_Y, test_Y
 
-def xxx_model(X, Y, learning_rate = 0.01, num_iterations = 1, print_cost = True, initialization = "he"):
+def xxx_model(X, Y, learning_rate = 0.001, num_iterations = 1, print_cost = True, initialization = "he"):
     """
     Implements a three-layer neural network: LINEAR->RELU->LINEAR->RELU->LINEAR->SIGMOID.
     
@@ -106,45 +106,76 @@ def initialize_parameters_he(layers_dims):
 def _initNN():
 
     costs = [] # to keep track of the loss
-    layers_dims = [9, 10, 5, 1]
+    layers_dims = [9, 3, 1, 1]
     # Initialize parameters dictionary.
     parameters = initialize_parameters_he(layers_dims)
     return parameters, costs
 
-def _trainNN(X, Y, parameters, costs):
-    a3, cache = forward_propagation(X, parameters)
+def _trainNN(X, Y, parameters, costs, learning_rate = 0.1, num_iter = 25):
     
-    # Loss
-    cost = compute_loss(a3, Y)
-
-    # Backward propagation.
-    grads = backward_propagation(X, Y, cache)
+    for i in range(0, num_iter):
+        a3, cache = forward_propagation(X, parameters)
+        
+        # Loss
+        cost = compute_loss(a3, Y)
     
-    # Update parameters.
-    parameters = update_parameters(parameters, grads, learning_rate)
-    
+        # Backward propagation.
+        grads = backward_propagation(X, Y, cache)
+        
+        # Update parameters.
+        parameters = update_parameters(parameters, grads, learning_rate)
+        
     costs.append(cost)
    
     return parameters, costs
    
-def getNNPrediction(X):
-    a3, caches = forward_propagation(X.reshape((-1,1)), PARAMS)
+def getNNPrediction(X, PARAMS):
+    a3, caches = forward_propagation(X.reshape((9,-1)), PARAMS)
     return a3
 
-def addTrain(X, Y):
+def addTrain_movimientos(train_X, train_Y, PARAMS, COST, X, Y):
     #incluir tablero en train_X
     #Opcion 1) incluir como tablero
     #Opcion 2) Incluir jugada a jugada
-    train_X.append(X)
-    train_Y.append(Y)
-    PARAMS, COST = _trainNN(X, Y, PARAMS, COST)
-    return
+    numJugadas = np.max(X)
+    X1 = train_X
+    Y1 = train_Y
+    P1 = PARAMS
+    C1 = COST
+    j1 = np.abs(X)
+    for i in range(0,int(numJugadas)):
+        
+        j2 = j1 <= i + 1
+        j3 = X * j2
+        j4 = j3.reshape(9,1)
+        jugada = np.sign(j4)
+        X1 = np.append(X1, jugada, axis=1)
+        #lab1 = Y * ((-1)**i) * (10 - numJugadas + i)
+        lab1 = (((Y * (10 - numJugadas + i)) / 10)+1)/2
+        lab2 = lab1.reshape(1,1)
+        Y1 = np.append(Y1, lab2, axis=1)
+    P1, C1 = _trainNN(X1, Y1, P1, C1)
+    return X1, Y1, P1, C1
 
- 
-PARAMS, COST = _initNN()
-train_X = np.array(([[],[],[],[],[],[],[],[],[]]))
-#print (train_X.shape)
-train_Y = np.array(([[]]))    
+def addTrain(train_X, train_Y, PARAMS, COST, X, Y):
+    #incluir tablero en train_X
+    #Opcion 1) incluir como tablero
+    #Opcion 2) Incluir jugada a jugada
+    numJugadas = np.max(X)
+    X1 = train_X
+    Y1 = train_Y
+    P1 = PARAMS
+    C1 = COST
+    j2 = X.reshape(9,1)
+    jugada = np.sign(j2)
+    X1 = np.append(X1, jugada, axis=1)
+    lab1 = ((Y * (10 - numJugadas)) / 10)
+    lab2 = lab1.reshape(1,1)
+    Y1 = np.append(Y1, lab2, axis=1)
+    P1, C1 = _trainNN(X1, Y1, P1, C1)
+    return X1, Y1, P1, C1
+
+
 #print (train_Y.shape)
 
 

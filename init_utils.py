@@ -14,7 +14,14 @@ def sigmoid(x):
     Return:
     s -- sigmoid(x)
     """
-    s = 1/(1+np.exp(-x))
+    if (np.max(-x)>500):
+        x0 = x>-500
+        x1 = x*x0
+        s = 1/(1+np.exp(-x1))
+        s1 = (1 - 1 * x0) * 10**(-4)
+        s = s * x0 + s1
+    else:
+        s = 1/(1+np.exp(-x))
     return s
 
 def relu(x):

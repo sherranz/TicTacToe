@@ -2,27 +2,34 @@
 import numpy as np
 import random
 import TicTacToeNN as tttnn
+from numpy import integer
 
-def getPrediction(tablero):
-    return tttnn.getNNPrediction(tablero)
+def getPrediction(tablero, parameters):
+    return tttnn.getNNPrediction(tablero, parameters)
 #    return random.random()*2 -1
     
-def getNextMove(tablero, move):
+def getNextMove(tablero, move, parameters, human):
 
     player = (-1)**np.sum(tablero!=0)
-
-    j=0
-    maxp=-1
-    maxj=-1
-    while(j<9):
-        if (tablero[j]==0):
-            tab2 = np.sign(tablero)
-            tab2[j] = player 
-            thisp = player * getPrediction(tab2)
-            if (thisp>maxp):
-                maxp = thisp
-                maxj = j
-        j+=1
+    if (human == -1):
+        j=0
+        maxp=-2
+        maxj=-1
+        while(j<9):
+            if (tablero[j]==0):
+                tab2 = np.sign(tablero)
+                tab2[j] = player 
+                thisp = player * getPrediction(tab2, parameters) +random.random()*0.1
+                if (thisp>maxp):
+                    maxp = thisp
+                    maxj = j
+            j+=1
+    else:
+        preguntar = True
+        while(preguntar):
+            print(tablero.reshape(3,3))
+            maxj = int(input("movimiento"))
+            preguntar = (tablero[maxj] != 0) 
     tablero[maxj] = player * move
     return
 
@@ -46,19 +53,30 @@ def verify(tablero):
     return wonA - wonB 
 
 def inicio():
-    tablero = np.zeros(9)
-
-
-    i=0
-    while (i<9):
-        getNextMove(tablero, i+1)
-        end = verify(tablero)
-        if (end != 0):
-            i=10
-        i+=1
-    #    input('Next...')
-    print(tablero.reshape(3,3))
-    print(end)
+    
+    
+    PARAMS, COST = tttnn._initNN()
+    train_X = np.array(([[],[],[],[],[],[],[],[],[]]))
+    #print (train_X.shape)
+    train_Y = np.array(([[]]))    
+    
+    for i in range(1,1000):
+        tablero = np.zeros(9)
+    
+    
+        i=0
+        human = 1
+        while (i<9):
+            human = - human
+            getNextMove(tablero, i+1, PARAMS, human)
+            end = verify(tablero)
+            if (end != 0):
+                i=10
+            i+=1
+        #    input('Next...')
+        print(tablero.reshape(3,3))
+        print(end)
+        train_X, train_Y, PARAMS, COST = tttnn.addTrain(train_X, train_Y, PARAMS, COST, tablero, end)
     return
 
 inicio()
