@@ -21,23 +21,23 @@ def relu(x):
 def tanh(x):
     return np.tanh(x)
 
-def dsigmoid():
+def dsigmoid(a, Y, m):
     #Derivada
     # dg/dz = a(1-a)
-    return
+    return 1./m * (a - Y)
 
 def drelu():
     #Derivada
     # dg/dz = z>0
     return
     
-def dtanh():
+def dtanh(a, Y, m):
     #Derivada
     # dg/dz = 1-a^2
     return
 
 
-def forward_propagation(X, parameters):
+def forward_propagation(LY_DIM, LY_ACT, X, parameters):
     """
     Implements the forward propagation (and computes the loss) presented in Figure 2.
     
@@ -55,17 +55,25 @@ def forward_propagation(X, parameters):
     Returns:
     loss -- the loss function (vanilla logistic loss)
     """
-        
-    # retrieve parameters
-    W1 = parameters["W1"]
-    b1 = parameters["b1"]
-    W2 = parameters["W2"]
-    b2 = parameters["b2"]
-    W3 = parameters["W3"]
-    b3 = parameters["b3"]
-    
+
+    a = X        
+    for i in range(1, len(LY_DIM)):
+        W = parameters["W" + str(i)]
+        b = parameters["b" + str(i)]
+        z = np.dot(W, a) + b
+        if LY_ACT[i+1] == 'T':
+            a = tanh(z1)
+        elif LY_ACT[i+1] == 'R':
+            a = relu(z1)
+        elif LY_ACT[i+1] == 'S':
+            a = sigmoid(z1)
+        cache["z" + str(i)] =z  
+        cache["a" + str(i)] =a
+        cache["W" + str(i)] =W
+        cache["b" + str(i)] =b  
+  
     # LINEAR -> RELU -> LINEAR -> RELU -> LINEAR -> SIGMOID
-    z1 = np.dot(W1, X) + b1
+    """    z1 = np.dot(W1, X) + b1
     a1 = relu(z1)
     z2 = np.dot(W2, a1) + b2
     a2 = relu(z2)
@@ -73,10 +81,10 @@ def forward_propagation(X, parameters):
     a3 = sigmoid(z3)
     
     cache = (z1, a1, W1, b1, z2, a2, W2, b2, z3, a3, W3, b3)
-    
+    """    
     return a3, cache
 
-def backward_propagation(X, Y, cache):
+def backward_propagation(LY_DIM, LY_ACT, X, Y, cache):
     """
     Implement the backward propagation presented in figure 2.
     
@@ -88,8 +96,27 @@ def backward_propagation(X, Y, cache):
     Returns:
     gradients -- A dictionary with the gradients with respect to each parameter, activation and pre-activation variables
     """
+
     m = X.shape[1]
-    (z1, a1, W1, b1, z2, a2, W2, b2, z3, a3, W3, b3) = cache
+    for i in range (len(LY_DIM), 0, -1):
+        z = cache['z' + str(i-1)]
+        a = cache['a' + str(i-1)]
+        W = cache['W' + str(i-1)]
+        b = cache['b' + str(i-1)]
+        if i>1:
+            a_= cache['a' + str(i-2)]
+        else:
+            a_= X
+    
+        if LY_ACT[i+1] == 'T':
+            dz = dtanh(a, Y, m)
+        elif LY_ACT[i+1] == 'R':
+            da = np.dot(W.T, dz3)
+            dz2 = np.multiply(da2, np.int64(a2 > 0))
+        elif LY_ACT[i+1] == 'S':
+            dz = dsigmoid(a, Y, m)
+        dW =  np.dot(dz3, a2.T)
+    """    (z1, a1, W1, b1, z2, a2, W2, b2, z3, a3, W3, b3) = cache
     
     dz3 = 1./m * (a3 - Y)
     dW3 = np.dot(dz3, a2.T)
@@ -105,10 +132,11 @@ def backward_propagation(X, Y, cache):
     dW1 = np.dot(dz1, X.T)
     db1 = np.sum(dz1, axis=1, keepdims = True)
     
-    gradients = {"dz3": dz3, "dW3": dW3, "db3": db3,
+    gradients = {            "dz3": dz3, "dW3": dW3, "db3": db3,
                  "da2": da2, "dz2": dz2, "dW2": dW2, "db2": db2,
                  "da1": da1, "dz1": dz1, "dW1": dW1, "db1": db1}
     
+    """
     return gradients
 
 def update_parameters(parameters, grads, learning_rate):

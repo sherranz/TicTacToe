@@ -1,8 +1,31 @@
-
 import numpy as np
 import random
-import TicTacToeNN as tttnn
-from numpy import integer
+import lyTicTacToeNN as tttnn
+
+def inicio():
+    PARAMS, COST, LY_DIM, LY_ACT = tttnn._initNN()
+    train_X = np.array(([[],[],[],[],[],[],[],[],[]]))
+    #print (train_X.shape)
+    train_Y = np.array(([[]]))    
+    
+    for j in range(1,1000):
+        tablero = np.zeros(9)
+    
+    
+        i=0
+        human = (-1)**j
+        while (i<9):
+            human = - human
+            getNextMove(LY_DIM, LY_ACT, tablero, i+1, PARAMS, human)
+            end = verify(tablero)
+            if (end != 0):
+                i=10
+            i+=1
+        #    input('Next...')
+        print(tablero.reshape(3,3))
+        print(end)
+        train_X, train_Y, PARAMS, COST = tttnn.addTrain(LY_DIM, LY_ACT, train_X, train_Y, PARAMS, COST, tablero, end)
+    return
 
 def getPrediction(tablero, parameters):
     return tttnn.getNNPrediction(tablero, parameters)
@@ -52,35 +75,9 @@ def verify(tablero):
             wonB = 1 
     return wonA - wonB 
 
-def inicio():
-    
-    
-    PARAMS, COST = tttnn._initNN()
-    train_X = np.array(([[],[],[],[],[],[],[],[],[]]))
-    #print (train_X.shape)
-    train_Y = np.array(([[]]))    
-    
-    for j in range(1,1000):
-        tablero = np.zeros(9)
-    
-    
-        i=0
-        human = (-1)**j
-        while (i<9):
-            human = - human
-            getNextMove(tablero, i+1, PARAMS, human)
-            end = verify(tablero)
-            if (end != 0):
-                i=10
-            i+=1
-        #    input('Next...')
-        print(tablero.reshape(3,3))
-        print(end)
-        train_X, train_Y, PARAMS, COST = tttnn.addTrain(train_X, train_Y, PARAMS, COST, tablero, end)
-    return
 
-inicio()
 
 
 
+inicio()
 

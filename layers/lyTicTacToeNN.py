@@ -1,81 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from init_utils import compute_loss, forward_propagation, backward_propagation, sigmoid
-from init_utils import update_parameters, predict#, load_dataset
-
-
-def xxx_inicio_prueba():
-    X0 = np.array([
-    [ 1., -1.], [-1.,  1.], [ 1.,  1.],
-    [ 1.,  1.], [ 1.,  1.], [-1., -1.],
-    [-1.,  1.], [ 1., -1.], [-1., -1.]
-    ])
-    Y0 = np.array([[0, 1]])
-    Y1 = np.array([[0, 0]])
-    
-    train_X = X0
-    test_X = X0
-    train_Y = Y0
-    test_Y = Y1
-    return train_X, test_X, train_Y, test_Y
-
-def xxx_model(X, Y, learning_rate = 0.001, num_iterations = 1, print_cost = True, initialization = "he"):
-    """
-    Implements a three-layer neural network: LINEAR->RELU->LINEAR->RELU->LINEAR->SIGMOID.
-    
-    Arguments:
-    X -- input data, of shape (2, number of examples)
-    Y -- true "label" vector (containing 0 for red dots; 1 for blue dots), of shape (1, number of examples)
-    learning_rate -- learning rate for gradient descent 
-    num_iterations -- number of iterations to run gradient descent
-    print_cost -- if True, print the cost every 1000 iterations
-    initialization -- flag to choose which initialization to use ("zeros","random" or "he")
-    
-    Returns:
-    parameters -- parameters learnt by the model
-    """
-        
-    grads = {}
-    costs = [] # to keep track of the loss
-    m = X.shape[1] # number of examples
-    layers_dims = [X.shape[0], 10, 5, 1]
-    
-    """    if initialization == "random":
-        parameters = initialize_parameters_random(layers_dims)
-    elif initialization == "he":
-    """
-
-    # Initialize parameters dictionary.
-    parameters = initialize_parameters_he(layers_dims)
-
-    # Loop (gradient descent)
-    for i in range(0, num_iterations):
-
-        # Forward propagation: LINEAR -> RELU -> LINEAR -> RELU -> LINEAR -> SIGMOID.
-        a3, cache = forward_propagation(X, parameters)
-        
-        # Loss
-        cost = compute_loss(a3, Y)
-
-        # Backward propagation.
-        grads = backward_propagation(X, Y, cache)
-        
-        # Update parameters.
-        parameters = update_parameters(parameters, grads, learning_rate)
-        
-        # Print the loss every 1000 iterations
-        if print_cost and i % 1000 == 0:
-            print("Cost after iteration {}: {}".format(i, cost))
-            costs.append(cost)
-            
-    # plot the loss
-    """    plt.plot(costs)
-    plt.ylabel('cost')
-    plt.xlabel('iterations (per hundreds)')
-    plt.title("Learning rate =" + str(learning_rate))
-    plt.show()
-    """    
-    return parameters
+from lyinit_utils import compute_loss, forward_propagation, backward_propagation, sigmoid
+from lyinit_utils import update_parameters, predict#, load_dataset
 
 def initialize_parameters_he(layers_dims):
     """
@@ -106,24 +32,25 @@ def initialize_parameters_he(layers_dims):
 def _initNN():
 
     costs = [] # to keep track of the loss
-    layers_dims = [9, 3, 1, 1]
+    layers_dims = [9, 3, 1]
+    layers_actv = ['', 'T', 'S']
     # Initialize parameters dictionary.
     parameters = initialize_parameters_he(layers_dims)
-    return parameters, costs
+    return parameters, costs, layers_dims, layers_actv
 
-def _trainNN(X, Y, parameters, costs, learning_rate = 1, num_iter = 2500):
+def _trainNN(LY_DIM, LY_ACT, X, Y, parameters, costs, learning_rate = 1, num_iter = 2500):
     
     for i in range(0, num_iter):
-        a3, cache = forward_propagation(X, parameters)
+        a3, cache = forward_propagation(LY_DIM, LY_ACT, X, parameters)
         
         # Loss
         cost = compute_loss(a3, Y)
     
         # Backward propagation.
-        grads = backward_propagation(X, Y, cache)
+        grads = backward_propagation(LY_DIM, LY_ACT, X, Y, cache)
         
         # Update parameters.
-        parameters = update_parameters(parameters, grads, learning_rate)
+        parameters = update_parameters(LY_DIM, LY_ACT, parameters, grads, learning_rate)
         
     costs.append(cost)
    
@@ -157,7 +84,7 @@ def addTrain_movimientos(train_X, train_Y, PARAMS, COST, X, Y):
     P1, C1 = _trainNN(X1, Y1, P1, C1)
     return X1, Y1, P1, C1
 
-def addTrain(train_X, train_Y, PARAMS, COST, X, Y):
+def addTrain(LY_DIM, LY_ACT, train_X, train_Y, PARAMS, COST, X, Y):
     #incluir tablero en train_X
     #Opcion 1) incluir como tablero
     #Opcion 2) Incluir jugada a jugada
@@ -172,7 +99,7 @@ def addTrain(train_X, train_Y, PARAMS, COST, X, Y):
     lab1 = (Y*(0.5 + 0.25 * (5-numJugadas)) + 1 )/2
     lab2 = lab1.reshape(1,1)
     Y1 = np.append(Y1, lab2, axis=1)
-    P1, C1 = _trainNN(X1, Y1, P1, C1)
+    P1, C1 = _trainNN(LY_DIM, LY_ACT, X1, Y1, P1, C1)
     return X1, Y1, P1, C1
 
 
