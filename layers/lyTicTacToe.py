@@ -1,37 +1,12 @@
 import numpy as np
 import random
 import lyTicTacToeNN as tttnn
+from nn import NeuralNetwork
 
-def inicio():
-    PARAMS, COST, LY_DIM, LY_ACT = tttnn._initNN()
-    train_X = np.array(([[],[],[],[],[],[],[],[],[]]))
-    #print (train_X.shape)
-    train_Y = np.array(([[]]))    
-    
-    for j in range(1,1000):
-        tablero = np.zeros(9)
-    
-    
-        i=0
-        human = (-1)**j
-        while (i<9):
-            human = - human
-            getNextMove(LY_DIM, LY_ACT, tablero, i+1, PARAMS, human)
-            end = verify(tablero)
-            if (end != 0):
-                i=10
-            i+=1
-        #    input('Next...')
-        print(tablero.reshape(3,3))
-        print(end)
-        train_X, train_Y, PARAMS, COST = tttnn.addTrain(LY_DIM, LY_ACT, train_X, train_Y, PARAMS, COST, tablero, end)
-    return
+def getPrediction(tablero, nn):
+    return nn.getPrediction(tablero)
 
-def getPrediction(tablero, parameters):
-    return tttnn.getNNPrediction(tablero, parameters)
-#    return random.random()*2 -1
-    
-def getNextMove(tablero, move, parameters, human):
+def getNextMove(nn, tablero, move, human):
 
     player = (-1)**np.sum(tablero!=0)
     if (human == -1):
@@ -42,7 +17,7 @@ def getNextMove(tablero, move, parameters, human):
             if (tablero[j]==0):
                 tab2 = np.sign(tablero)
                 tab2[j] = player 
-                thisp = player * getPrediction(tab2, parameters) +random.random()*0.1
+                thisp = player * getPrediction(tab2, nn) +random.random()*0.1
                 if (thisp>maxp):
                     maxp = thisp
                     maxj = j
@@ -54,6 +29,26 @@ def getNextMove(tablero, move, parameters, human):
             maxj = int(input("movimiento"))
             preguntar = (tablero[maxj] != 0) 
     tablero[maxj] = player * move
+    return
+
+def inicio():
+    nn = NeuralNetwork([9, 3, 1], ['', 'T', 'S'])
+    
+    for j in range(1,1000):
+        tablero = np.zeros(9)
+        i=0
+        human = (-1)**j
+        while (i<9):
+            human = - human
+            getNextMove(nn, tablero, i+1, human)
+            end = verify(tablero)
+            if (end != 0):
+                i=10
+            i+=1
+        #    input('Next...')
+        print(tablero.reshape(3,3))
+        print(end)
+        nn.addTrain(tablero, end)
     return
 
 def verify(tablero):

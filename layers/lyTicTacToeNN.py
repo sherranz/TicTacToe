@@ -1,42 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from lyinit_utils import compute_loss, forward_propagation, backward_propagation, sigmoid
-from lyinit_utils import update_parameters, predict#, load_dataset
 
-def initialize_parameters_he(layers_dims):
-    """
-    Arguments:
-    layer_dims -- python array (list) containing the size of each layer.
-    
-    Returns:
-    parameters -- python dictionary containing your parameters "W1", "b1", ..., "WL", "bL":
-                    W1 -- weight matrix of shape (layers_dims[1], layers_dims[0])
-                    b1 -- bias vector of shape (layers_dims[1], 1)
-                    ...
-                    WL -- weight matrix of shape (layers_dims[L], layers_dims[L-1])
-                    bL -- bias vector of shape (layers_dims[L], 1)
-    """
-    
-    np.random.seed(3)
-    parameters = {}
-    L = len(layers_dims) - 1 # integer representing the number of layers
-     
-    for l in range(1, L + 1):
-        ### START CODE HERE ### (≈ 2 lines of code)
-        parameters['W' + str(l)] = np.abs(np.random.randn(layers_dims[l], layers_dims[l-1]) * np.sqrt(2./layers_dims[l-1]) / 100)
-        parameters['b' + str(l)] = np.zeros((layers_dims[l], 1))
-        ### END CODE HERE ###
-        
-    return parameters
 
-def _initNN():
 
-    costs = [] # to keep track of the loss
-    layers_dims = [9, 3, 1]
-    layers_actv = ['', 'T', 'S']
-    # Initialize parameters dictionary.
-    parameters = initialize_parameters_he(layers_dims)
-    return parameters, costs, layers_dims, layers_actv
+
 
 def _trainNN(LY_DIM, LY_ACT, X, Y, parameters, costs, learning_rate = 1, num_iter = 2500):
     
@@ -56,10 +23,6 @@ def _trainNN(LY_DIM, LY_ACT, X, Y, parameters, costs, learning_rate = 1, num_ite
    
     return parameters, costs
    
-def getNNPrediction(X, PARAMS):
-    a3, caches = forward_propagation(X.reshape((9,-1)), PARAMS)
-    return a3
-
 def addTrain_movimientos(train_X, train_Y, PARAMS, COST, X, Y):
     #incluir tablero en train_X
     #Opcion 1) incluir como tablero
