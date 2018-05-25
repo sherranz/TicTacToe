@@ -1,6 +1,5 @@
 import numpy as np
 import random
-import lyTicTacToeNN as tttnn
 from nn import NeuralNetwork
 
 def getPrediction(tablero, nn):
@@ -27,12 +26,13 @@ def getNextMove(nn, tablero, move, human):
         while(preguntar):
             print(tablero.reshape(3,3))
             maxj = int(input("movimiento"))
-            preguntar = (tablero[maxj] != 0) 
+            if (maxj in range(0,tablero.shape[0])):
+                preguntar = (tablero[maxj] != 0) 
     tablero[maxj] = player * move
     return
 
 def inicio():
-    nn = NeuralNetwork([9, 3, 1], ['', 'T', 'S'])
+    nn = NeuralNetwork([9, 9, 1], ['', 'T', 'S'])
     
     for j in range(1,1000):
         tablero = np.zeros(9)
@@ -40,14 +40,16 @@ def inicio():
         human = (-1)**j
         while (i<9):
             human = - human
+            if auto:
+                human = -1
             getNextMove(nn, tablero, i+1, human)
             end = verify(tablero)
             if (end != 0):
                 i=10
             i+=1
-        #    input('Next...')
         print(tablero.reshape(3,3))
         print(end)
+        #input('Next...')
         nn.addTrain(tablero, end)
     return
 
@@ -72,7 +74,7 @@ def verify(tablero):
 
 
 
-
+auto = True
 
 inicio()
 
